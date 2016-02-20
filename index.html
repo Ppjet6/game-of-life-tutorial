@@ -239,17 +239,91 @@
       console.log('Game logic tests pass');
 
       // Rendering
-      var mount = document.getElementById('mount');
 
-      var render = function (grid) {
+      var cellToStr = function (alive) {
+        return '<div class="cell' + (alive && ' alive' || '') + '"></div>';
       };
 
+      var gridToStr = function (grid) {
+        var gridStr = '<div class="grid">';
+
+        for (var y = 0; y < grid.height; y++) {
+          gridStr += '<div class="row">';
+          for (var x = 0; x < grid.width; x++) {
+            gridStr += cellToStr(isAlive(grid, x, y));
+          }
+          gridStr += '</div>';
+        }
+
+        gridStr += '</div>';
+        return gridStr;
+      };
+
+      var render = function (grid, mount) {
+        mount.innerHTML = gridToStr(grid);
+      };
+
+      var testDeadCellToStr = function () {
+        var expected = '<div class="cell"></div>';
+        var actual = cellToStr(false);
+
+        assert(actual === expected, "Dead cell to string");
+      };
+
+      var testAliveCellToStr = function () {
+        var expected = '<div class="cell alive"></div>';
+        var actual = cellToStr(true);
+
+        assert(actual === expected, "Alive cell to string");
+      };
+
+      var testGridToStr = function () {
+        var grid = newGrid(2, 2);
+
+        setAlive(grid, 0, 1);
+        setAlive(grid, 1, 1);
+
+        var expected = '<div class="grid">' +
+          '<div class="row">' +
+          '<div class="cell"></div>' +
+          '<div class="cell"></div>' +
+          '</div>' +
+          '<div class="row">' +
+          '<div class="cell alive"></div>' +
+          '<div class="cell alive"></div>' +
+          '</div>' +
+          '</div>';
+        var actual = gridToStr(grid);
+
+        assert(actual === expected, "Grid to string");
+      };
+
+      var testRender = function () {
+        var grid = newGrid(3, 3);
+        var mount = {};
+
+        var actual = render(grid, mount);
+        var expectedGrid = gridToStr(grid);
+
+        assert(mount.innerHTML === expectedGrid,
+          "Should set mount's innerHTML property");
+      };
+
+      console.log('Starting rendering tests');
+      testDeadCellToStr();
+      testAliveCellToStr();
+      testGridToStr();
+      testRender();
+      console.log('Rendering tests pass');
+
       // Game loop
-      var timeoutId;
+      var timeoutId, lastGrid;
+      var mount = document.getElementById('mount');
 
       var loop = function (grid) {
+        lastGrid = grid;
         var next = update(grid);
-        render(next);
+        render(next, mount);
 
         timeoutId = setTimeout(function () { loop(next); }, 500);
       };
@@ -260,7 +334,12 @@
         }
       };
 
-      loop(newGrid(5, 5));
+      var grid = newGrid(10, 10);
+      setAlive(grid, 1, 3);
+      setAlive(grid, 2, 3);
+      setAlive(grid, 3, 3);
+
+      loop(grid, mount);
     </script>
 	</body>
 </html>
