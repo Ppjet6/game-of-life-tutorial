@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    <meta charset="utf-8" />
+    <title>Game of Life</title>
+	</head>
+	<body>
+    <h1>Game of life</h1>
+    <div id="mount"></div>
+
+		<script>
+      // Game logic
+
+      var isAlive = function (grid, cell) {
+        return grid.cells[cell];
+      };
+
+      var setAlive = function (grid, cell) {
+        grid.cells[cell] = true;
+      };
+
+      var newCells = function (width, height) {
+        var cells = new Array(width * height);
+        for (var cell = 0; cell < width * height; cell++) {
+          cells[cell] = false;
+        }
+
+        return cells;
+      };
+
+      var newGrid = function (width, height) {
+        width = width || 5;
+        height = height || 5;
+
+        return {
+          width: width,
+          height: height,
+          cells: newCells(width, height),
+        }
+      };
+
+      /*
+       * Neighbors - Don't let cells go through walls.
+       */
+      var aliveNeighbors = function (grid, cell) {
+        var res = 0;
+
+        var up = cell - grid.width,
+            bottom = cell + grid.width,
+            left = cell - 1,
+            right = cell + 1;
+
+        if (up >= 0 && isAlive(grid, up)) {
+          res++;
+        }
+
+        if (bottom <= (grid.width * grid.height - 1) &&
+            isAlive(grid, bottom)) {
+          res++;
+        }
+
+        if (left >= 0 &&
+            ((left / grid.width | 0) === (cell / grid.width | 0)) &&
+            isAlive(grid, left)) {
+          res++;
+        }
+
+        if (right <= (grid.width * grid.height - 1) &&
+            ((right / grid.width | 0) === (cell / grid.width | 0)) &&
+            isAlive(grid, right)) {
+          res++;
+        }
+
+        return res;
+      };
+
+      /*
+       * Returns a new grid with the next generation
+       */
+      var update = function (grid) {
+        var width = grid.width,
+            height = grid.height;
+        var nextGrid = newGrid(width, height);
+
+        for (var cell = 0; cell < width * height; cell++) {
+          var alive = isAlive(grid, cell);
+          var neighbors = aliveNeighbors(grid, cell);
+
+          // - Any live cell with fewer than two live neighbors dies, as if
+          //   caused by under-population
+          // - Any live cell with two or three live neighbors lives on to the
+          //   next generation
+          // - Any live cell with more than three live neighbors dies, as if
+          //   by over-population
+          // - Any dead cell with exactly three live neighbors becomes a live
+          //   cell, as if by reproduction
+          if ((alive && (neighbors === 2 || neighbors === 3)) ||
+              (!alive && neighbors === 3)) {
+            setAlive(nextGrid, cell);
+          }
+        }
+
+        return nextGrid;
+      };
+
+      // Tests
+
+      var assert = function (predicate, message) {
+        if (!predicate) {
+          message = message || "Assertion Failed";
+
+          throw new Error(message);
+        }
+      };
+
+      var testNewCells = function () {
+        var grid = newGrid(3, 3);
+
+        for (var cell = 0; cell < grid.width * grid.height; cell++) {
+          assert(!isAlive(grid, cell), "New generated cells are dead");
+        }
+      };
+
+      var testAliveCell = function () {
+        var grid = newGrid(3, 3);
+
+        setAlive(grid, 0);
+        assert(isAlive(grid, 0), "Cell should be alive");
+      };
+
+      var testAliveNeighbors = function () {
+        var grid = newGrid(4, 4);
+
+        setAlive(grid, 1);
+        setAlive(grid, 2);
+        setAlive(grid, 5);
+        setAlive(grid, 6);
+        setAlive(grid, 8);
+        setAlive(grid, 9);
+
+        assert(aliveNeighbors(grid, 0) === 1, "Only 1 as a neighbor");
+        assert(aliveNeighbors(grid, 1) === 2, "2 and 5 as neighbors");
+        assert(aliveNeighbors(grid, 2) === 2, "1 and 6 as neighbors");
+        assert(aliveNeighbors(grid, 3) === 1, "Only 2 as a neighbor");
+        assert(aliveNeighbors(grid, 4) === 2, "5 and 8 as neighbors");
+        assert(aliveNeighbors(grid, 5) === 3, "1, 6 and 9 as neighbors");
+        assert(aliveNeighbors(grid, 6) === 2, "2 and 5 as neighbors");
+        assert(aliveNeighbors(grid, 7) === 1, "Only 6 as a neighbor");
+        assert(aliveNeighbors(grid, 8) === 1, "Only 9 as a neighbor");
+        assert(aliveNeighbors(grid, 9) === 2, "5 and 8 as neighbors");
+        assert(aliveNeighbors(grid, 10) === 2, "6 and 9 as neighbors");
+        assert(aliveNeighbors(grid, 11) === 0, "No neighbors");
+      };
+
+      var testUpdateReproduction = function () {
+        var grid = newGrid(3, 3);
+
+        setAlive(grid, 1);
+        setAlive(grid, 3);
+        setAlive(grid, 5);
+
+        var next = update(grid);
+
+        assert(isAlive(next, 4),
+          "Dead cell should become alive, caused by reproduction");
+      };
+
+      var testUpdateSurvival = function () {
+        var grid = newGrid(3, 3);
+
+        setAlive(grid, 3);
+        setAlive(grid, 4);
+        setAlive(grid, 5);
+
+        var next = update(grid);
+
+        assert(isAlive(next, 4),
+          "Alive cell should stay alive, caused by survival");
+      };
+
+      var testUpdateDepopulation = function () {
+        var grid = newGrid(3, 3);
+
+        setAlive(grid, 4);
+
+        var next = update(grid);
+
+        assert(!isAlive(next, 4),
+          "Alive cell should die, caused by depopulation");
+      };
+
+      var testUpdateOverCrowding = function () {
+        var grid = newGrid(3, 3);
+
+        setAlive(grid, 1);
+        setAlive(grid, 3);
+        setAlive(grid, 4);
+        setAlive(grid, 5);
+        setAlive(grid, 7);
+
+        var next = update(grid);
+
+        assert(!isAlive(next, 4),
+          "Alive cell should die, caused by overcrowding");
+      };
+
+      console.log('Starting game logic tests');
+      testNewCells();
+      testAliveCell();
+      testAliveNeighbors();
+      testUpdateReproduction();
+      testUpdateSurvival();
+      testUpdateDepopulation();
+      testUpdateOverCrowding();
+      console.log('Game logic tests pass');
+
+      // Rendering
+      var mount = document.getElementById('mount');
+
+      var render = function (grid) {
+      };
+
+      // Game loop
+      var timeoutId;
+
+      var loop = function (grid) {
+        var next = update(grid);
+        render(next);
+
+        timeoutId = setTimeout(function () { loop(next); }, 500);
+      };
+
+      var stopGame = function () {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+      };
+
+      loop(newGrid(5, 5));
+    </script>
+	</body>
+</html>
