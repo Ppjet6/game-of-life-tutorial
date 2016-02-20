@@ -9,6 +9,16 @@
     <div id="mount"></div>
 
 		<script>
+      // Test utils
+
+      var assert = function (predicate, message) {
+        if (!predicate) {
+          message = message || "Assertion Failed";
+
+          throw new Error(message);
+        }
+      };
+
       // Game logic
 
       var isAlive = function (grid, cell) {
@@ -101,16 +111,6 @@
         }
 
         return nextGrid;
-      };
-
-      // Tests
-
-      var assert = function (predicate, message) {
-        if (!predicate) {
-          message = message || "Assertion Failed";
-
-          throw new Error(message);
-        }
       };
 
       var testNewCells = function () {
