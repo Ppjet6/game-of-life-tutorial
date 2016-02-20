@@ -21,12 +21,28 @@
 
       // Game logic
 
-      var isAlive = function (grid, cell) {
-        return grid.cells[cell];
+      var toIndex = function (x, y, w, h) {
+        if (x < 0 || x >= w || y < 0 || y >= h) {
+          return undefined;
+        }
+
+        return y * w + x;
       };
 
-      var setAlive = function (grid, cell) {
-        grid.cells[cell] = true;
+      var isAlive = function (grid, x, y) {
+        var index = toIndex(x, y, grid.width, grid.height);
+
+        if (index !== undefined) {
+          return grid.cells[index];
+        }
+      };
+
+      var setAlive = function (grid, x, y) {
+        var index = toIndex(x, y, grid.width, grid.height);
+
+        if (index !== undefined) {
+          grid.cells[index] = true;
+        }
       };
 
       var newCells = function (width, height) {
@@ -52,36 +68,25 @@
       /*
        * Neighbors - Don't let cells go through walls.
        */
-      var aliveNeighbors = function (grid, cell) {
-        var res = 0;
+      var aliveNeighbors = function (grid, x, y) {
+        var indices = [
+          [x, y - 1],  // Left
+          [x - 1, y - 1],  // Upper Left
+          [x - 1, y],  // Upper
+          [x - 1, y + 1],  // Upper Right
+          [x, y + 1],  // Right
+          [x + 1, y + 1],  // Bottom Right
+          [x + 1, y],  // Bottom
+          [x + 1, y - 1],  // Bottom Left
+        ];
 
-        var up = cell - grid.width,
-            bottom = cell + grid.width,
-            left = cell - 1,
-            right = cell + 1;
+        return indices.filter(function (index) {
+          var x = index[0],
+              y = index[1];
 
-        if (up >= 0 && isAlive(grid, up)) {
-          res++;
-        }
-
-        if (bottom <= (grid.width * grid.height - 1) &&
-            isAlive(grid, bottom)) {
-          res++;
-        }
-
-        if (left >= 0 &&
-            ((left / grid.width | 0) === (cell / grid.width | 0)) &&
-            isAlive(grid, left)) {
-          res++;
-        }
-
-        if (right <= (grid.width * grid.height - 1) &&
-            ((right / grid.width | 0) === (cell / grid.width | 0)) &&
-            isAlive(grid, right)) {
-          res++;
-        }
-
-        return res;
+          // Will also eliminate out of bound indices
+          return isAlive(grid, x, y);
+        }).length;
       };
 
       /*
@@ -92,119 +97,138 @@
             height = grid.height;
         var nextGrid = newGrid(width, height);
 
-        for (var cell = 0; cell < width * height; cell++) {
-          var alive = isAlive(grid, cell);
-          var neighbors = aliveNeighbors(grid, cell);
+        for (var y = 0; y < height; y++) {
+          for (var x = 0; x < width; x++) {
+            var alive = isAlive(grid, x, y);
+            var neighbors = aliveNeighbors(grid, x, y);
 
-          // - Any live cell with fewer than two live neighbors dies, as if
-          //   caused by under-population
-          // - Any live cell with two or three live neighbors lives on to the
-          //   next generation
-          // - Any live cell with more than three live neighbors dies, as if
-          //   by over-population
-          // - Any dead cell with exactly three live neighbors becomes a live
-          //   cell, as if by reproduction
-          if ((alive && (neighbors === 2 || neighbors === 3)) ||
-              (!alive && neighbors === 3)) {
-            setAlive(nextGrid, cell);
+            // - Any live cell with fewer than two live neighbors dies, as if
+            //   caused by under-population
+            // - Any live cell with two or three live neighbors lives on to the
+            //   next generation
+            // - Any live cell with more than three live neighbors dies, as if
+            //   by over-population
+            // - Any dead cell with exactly three live neighbors becomes a live
+            //   cell, as if by reproduction
+            if ((alive && (neighbors === 2 || neighbors === 3)) ||
+                (!alive && neighbors === 3)) {
+              setAlive(nextGrid, x, y);
+            }
           }
         }
 
         return nextGrid;
       };
 
+      var testToIndex = function () {
+        var w = 5,
+            h = 4;
+
+        assert(toIndex(0, 0, w, h) === 0, "toIndex");
+        assert(toIndex(1, 0, w, h) === 1, "toIndex");
+        assert(toIndex(2, 0, w, h) === 2, "toIndex");
+        assert(toIndex(2, 1, w, h) === 7, "toIndex");
+        assert(toIndex(2, 3, w, h) === 17, "toIndex");
+        assert(toIndex(4, 3, w, h) === 19, "toIndex");
+        assert(toIndex(-1, 3, w, h) === undefined, "toIndex");
+        assert(toIndex(1, -3, w, h) === undefined, "toIndex");
+        assert(toIndex(1, 6, w, h) === undefined, "toIndex");
+      };
+
       var testNewCells = function () {
         var grid = newGrid(3, 3);
 
-        for (var cell = 0; cell < grid.width * grid.height; cell++) {
-          assert(!isAlive(grid, cell), "New generated cells are dead");
+        for (var y = 0; y < grid.height; y++) {
+          for (var x = 0; x < grid.width; x++) {
+            assert(!isAlive(grid, x, y), "New generated cells are dead");
+          }
         }
       };
 
       var testAliveCell = function () {
         var grid = newGrid(3, 3);
 
-        setAlive(grid, 0);
-        assert(isAlive(grid, 0), "Cell should be alive");
+        setAlive(grid, 0, 0);
+        assert(isAlive(grid, 0, 0), "Cell should be alive");
       };
 
       var testAliveNeighbors = function () {
-        var grid = newGrid(4, 4);
+        var grid = newGrid(4, 3);
 
-        setAlive(grid, 1);
-        setAlive(grid, 2);
-        setAlive(grid, 5);
-        setAlive(grid, 6);
-        setAlive(grid, 8);
-        setAlive(grid, 9);
+        setAlive(grid, 1, 0);
+        setAlive(grid, 2, 0);
+        setAlive(grid, 1, 1);
+        setAlive(grid, 0, 2);
+        setAlive(grid, 1, 2);
 
-        assert(aliveNeighbors(grid, 0) === 1, "Only 1 as a neighbor");
-        assert(aliveNeighbors(grid, 1) === 2, "2 and 5 as neighbors");
-        assert(aliveNeighbors(grid, 2) === 2, "1 and 6 as neighbors");
-        assert(aliveNeighbors(grid, 3) === 1, "Only 2 as a neighbor");
-        assert(aliveNeighbors(grid, 4) === 2, "5 and 8 as neighbors");
-        assert(aliveNeighbors(grid, 5) === 3, "1, 6 and 9 as neighbors");
-        assert(aliveNeighbors(grid, 6) === 2, "2 and 5 as neighbors");
-        assert(aliveNeighbors(grid, 7) === 1, "Only 6 as a neighbor");
-        assert(aliveNeighbors(grid, 8) === 1, "Only 9 as a neighbor");
-        assert(aliveNeighbors(grid, 9) === 2, "5 and 8 as neighbors");
-        assert(aliveNeighbors(grid, 10) === 2, "6 and 9 as neighbors");
-        assert(aliveNeighbors(grid, 11) === 0, "No neighbors");
+        assert(aliveNeighbors(grid, 0, 0) === 2, "Neighbors: 1, 5");
+        assert(aliveNeighbors(grid, 1, 0) === 2, "Neighbors: 2, 5");
+        assert(aliveNeighbors(grid, 2, 0) === 2, "Neighbors: 1, 5");
+        assert(aliveNeighbors(grid, 3, 0) === 1, "Neighbors: 2");
+        assert(aliveNeighbors(grid, 0, 1) === 4, "Neighbors: 1, 5, 9, 8");
+        assert(aliveNeighbors(grid, 1, 1) === 4, "Neighbors: 1, 2, 9, 8");
+        assert(aliveNeighbors(grid, 2, 1) === 4, "Neighbors: 1, 2, 9, 5");
+        assert(aliveNeighbors(grid, 3, 1) === 1, "Neighbors: 2");
+        assert(aliveNeighbors(grid, 0, 2) === 2, "Neighbors: 5, 9");
+        assert(aliveNeighbors(grid, 1, 2) === 2, "Neighbors: 5, 8");
+        assert(aliveNeighbors(grid, 2, 2) === 2, "Neighbors: 5, 9");
+        assert(aliveNeighbors(grid, 3, 2) === 0, "Neighbors: none");
       };
 
       var testUpdateReproduction = function () {
         var grid = newGrid(3, 3);
 
-        setAlive(grid, 1);
-        setAlive(grid, 3);
-        setAlive(grid, 5);
+        setAlive(grid, 1, 0);
+        setAlive(grid, 0, 1);
+        setAlive(grid, 2, 1);
 
         var next = update(grid);
 
-        assert(isAlive(next, 4),
+        assert(isAlive(next, 1, 1),
           "Dead cell should become alive, caused by reproduction");
       };
 
       var testUpdateSurvival = function () {
         var grid = newGrid(3, 3);
 
-        setAlive(grid, 3);
-        setAlive(grid, 4);
-        setAlive(grid, 5);
+        setAlive(grid, 0, 1);
+        setAlive(grid, 1, 1);
+        setAlive(grid, 2, 1);
 
         var next = update(grid);
 
-        assert(isAlive(next, 4),
+        assert(isAlive(next, 1, 1),
           "Alive cell should stay alive, caused by survival");
       };
 
       var testUpdateDepopulation = function () {
         var grid = newGrid(3, 3);
 
-        setAlive(grid, 4);
+        setAlive(grid, 1, 1);
 
         var next = update(grid);
 
-        assert(!isAlive(next, 4),
+        assert(!isAlive(next, 1, 1),
           "Alive cell should die, caused by depopulation");
       };
 
       var testUpdateOverCrowding = function () {
         var grid = newGrid(3, 3);
 
-        setAlive(grid, 1);
-        setAlive(grid, 3);
-        setAlive(grid, 4);
-        setAlive(grid, 5);
-        setAlive(grid, 7);
+        setAlive(grid, 1, 0);
+        setAlive(grid, 0, 1);
+        setAlive(grid, 1, 1);
+        setAlive(grid, 2, 1);
+        setAlive(grid, 1, 2);
 
         var next = update(grid);
 
-        assert(!isAlive(next, 4),
+        assert(!isAlive(next, 1, 1),
           "Alive cell should die, caused by overcrowding");
       };
 
       console.log('Starting game logic tests');
+      testToIndex();
       testNewCells();
       testAliveCell();
       testAliveNeighbors();
