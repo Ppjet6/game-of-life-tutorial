@@ -363,48 +363,74 @@
       };
 
       // Gosper Glider Gun
-      var grid = newGrid(50, 30);
-      setAlive(grid, 1, 5);
-      setAlive(grid, 2, 5);
-      setAlive(grid, 1, 6);
-      setAlive(grid, 2, 6);
+      var gliderGrid = newGrid(50, 30);
+      setAlive(gliderGrid, 1, 5);
+      setAlive(gliderGrid, 2, 5);
+      setAlive(gliderGrid, 1, 6);
+      setAlive(gliderGrid, 2, 6);
 
-      setAlive(grid, 35, 3);
-      setAlive(grid, 36, 3);
-      setAlive(grid, 35, 4);
-      setAlive(grid, 36, 4);
+      setAlive(gliderGrid, 35, 3);
+      setAlive(gliderGrid, 36, 3);
+      setAlive(gliderGrid, 35, 4);
+      setAlive(gliderGrid, 36, 4);
 
-      setAlive(grid, 11, 5);
-      setAlive(grid, 11, 6);
-      setAlive(grid, 11, 7);
-      setAlive(grid, 12, 4);
-      setAlive(grid, 12, 8);
-      setAlive(grid, 13, 3);
-      setAlive(grid, 13, 9);
-      setAlive(grid, 14, 3);
-      setAlive(grid, 14, 9);
-      setAlive(grid, 15, 6);
-      setAlive(grid, 16, 4);
-      setAlive(grid, 16, 8);
-      setAlive(grid, 17, 5);
-      setAlive(grid, 17, 6);
-      setAlive(grid, 17, 7);
-      setAlive(grid, 18, 6);
+      setAlive(gliderGrid, 11, 5);
+      setAlive(gliderGrid, 11, 6);
+      setAlive(gliderGrid, 11, 7);
+      setAlive(gliderGrid, 12, 4);
+      setAlive(gliderGrid, 12, 8);
+      setAlive(gliderGrid, 13, 3);
+      setAlive(gliderGrid, 13, 9);
+      setAlive(gliderGrid, 14, 3);
+      setAlive(gliderGrid, 14, 9);
+      setAlive(gliderGrid, 15, 6);
+      setAlive(gliderGrid, 16, 4);
+      setAlive(gliderGrid, 16, 8);
+      setAlive(gliderGrid, 17, 5);
+      setAlive(gliderGrid, 17, 6);
+      setAlive(gliderGrid, 17, 7);
+      setAlive(gliderGrid, 18, 6);
 
-      setAlive(grid, 21, 3);
-      setAlive(grid, 21, 4);
-      setAlive(grid, 21, 5);
-      setAlive(grid, 22, 3);
-      setAlive(grid, 22, 4);
-      setAlive(grid, 22, 5);
-      setAlive(grid, 23, 2);
-      setAlive(grid, 23, 6);
-      setAlive(grid, 25, 1);
-      setAlive(grid, 25, 2);
-      setAlive(grid, 25, 6);
-      setAlive(grid, 25, 7);
+      setAlive(gliderGrid, 21, 3);
+      setAlive(gliderGrid, 21, 4);
+      setAlive(gliderGrid, 21, 5);
+      setAlive(gliderGrid, 22, 3);
+      setAlive(gliderGrid, 22, 4);
+      setAlive(gliderGrid, 22, 5);
+      setAlive(gliderGrid, 23, 2);
+      setAlive(gliderGrid, 23, 6);
+      setAlive(gliderGrid, 25, 1);
+      setAlive(gliderGrid, 25, 2);
+      setAlive(gliderGrid, 25, 6);
+      setAlive(gliderGrid, 25, 7);
 
-      Game.start(grid);
+      var trainGrid = newGrid(10, 18);
+      setAlive(trainGrid, 5, 0);
+      setAlive(trainGrid, 6, 1);
+      setAlive(trainGrid, 2, 2);
+      setAlive(trainGrid, 6, 2);
+      setAlive(trainGrid, 3, 3);
+      setAlive(trainGrid, 4, 3);
+      setAlive(trainGrid, 5, 3);
+      setAlive(trainGrid, 6, 3);
+
+      setAlive(trainGrid, 2, 7);
+      setAlive(trainGrid, 3, 8);
+      setAlive(trainGrid, 4, 8);
+      setAlive(trainGrid, 4, 9);
+      setAlive(trainGrid, 4, 10);
+      setAlive(trainGrid, 3, 11);
+
+      setAlive(trainGrid, 5, 14);
+      setAlive(trainGrid, 6, 15);
+      setAlive(trainGrid, 2, 16);
+      setAlive(trainGrid, 6, 16);
+      setAlive(trainGrid, 3, 17);
+      setAlive(trainGrid, 4, 17);
+      setAlive(trainGrid, 5, 17);
+      setAlive(trainGrid, 6, 17);
+
+      Game.start(trainGrid);
     </script>
 	</body>
 </html>
