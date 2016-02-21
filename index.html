@@ -339,21 +339,27 @@
       console.log('Rendering tests pass');
 
       // Game loop
-      var timeoutId, lastGrid;
-      var mount = document.getElementById('mount');
 
-      var loop = function (grid) {
-        lastGrid = grid;
-        var next = update(grid);
-        render(next, mount);
+      var Game = {
+        mount: document.getElementById('mount'),
 
-        timeoutId = setTimeout(function () { loop(next); }, 500);
-      };
+        start: function (grid) {
+          this.lastGrid = grid;
+          var next = update(grid);
+          render(next, this.mount);
 
-      var stopGame = function () {
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
+          this.timeoutId = setTimeout(function () {
+              this.start(next);
+          }.bind(this), 200);
+        },
+
+        pauseGame: function () {
+          clearTimeout(this.timeoutId);
+        },
+
+        resumeGame: function () {
+          return this.start(this.lastGrid);
+        },
       };
 
       // Gosper Glider Gun
@@ -398,7 +404,7 @@
       setAlive(grid, 25, 6);
       setAlive(grid, 25, 7);
 
-      loop(grid, mount);
+      Game.start(grid);
     </script>
 	</body>
 </html>
