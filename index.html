@@ -356,10 +356,47 @@
         }
       };
 
-      var grid = newGrid(10, 10);
-      setAlive(grid, 1, 3);
-      setAlive(grid, 2, 3);
-      setAlive(grid, 3, 3);
+      // Gosper Glider Gun
+      var grid = newGrid(50, 30);
+      setAlive(grid, 1, 5);
+      setAlive(grid, 2, 5);
+      setAlive(grid, 1, 6);
+      setAlive(grid, 2, 6);
+
+      setAlive(grid, 35, 3);
+      setAlive(grid, 36, 3);
+      setAlive(grid, 35, 4);
+      setAlive(grid, 36, 4);
+
+      setAlive(grid, 11, 5);
+      setAlive(grid, 11, 6);
+      setAlive(grid, 11, 7);
+      setAlive(grid, 12, 4);
+      setAlive(grid, 12, 8);
+      setAlive(grid, 13, 3);
+      setAlive(grid, 13, 9);
+      setAlive(grid, 14, 3);
+      setAlive(grid, 14, 9);
+      setAlive(grid, 15, 6);
+      setAlive(grid, 16, 4);
+      setAlive(grid, 16, 8);
+      setAlive(grid, 17, 5);
+      setAlive(grid, 17, 6);
+      setAlive(grid, 17, 7);
+      setAlive(grid, 18, 6);
+
+      setAlive(grid, 21, 3);
+      setAlive(grid, 21, 4);
+      setAlive(grid, 21, 5);
+      setAlive(grid, 22, 3);
+      setAlive(grid, 22, 4);
+      setAlive(grid, 22, 5);
+      setAlive(grid, 23, 2);
+      setAlive(grid, 23, 6);
+      setAlive(grid, 25, 1);
+      setAlive(grid, 25, 2);
+      setAlive(grid, 25, 6);
+      setAlive(grid, 25, 7);
 
       loop(grid, mount);
     </script>
