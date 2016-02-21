@@ -344,9 +344,10 @@
         mount: document.getElementById('mount'),
 
         start: function (grid) {
+          render(grid, this.mount);
+
           this.lastGrid = grid;
           var next = update(grid);
-          render(next, this.mount);
 
           this.timeoutId = setTimeout(function () {
               this.start(next);
